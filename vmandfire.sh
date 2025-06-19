@@ -29,7 +29,7 @@ gcloud services enable compute.googleapis.com iam.googleapis.com --quiet
 echo "✅ APIs enabled: Compute & IAM"
 
 # ─────────────────────────────────────────────
-# STEP 4: Get Default Compute Engine Service Account
+# STEP 4: Get Compute Engine Default Service Account (optional fallback)
 # ─────────────────────────────────────────────
 SERVICE_ACCOUNT=$(gcloud iam service-accounts list \
   --filter="displayName:Compute Engine default service account" \
@@ -37,12 +37,12 @@ SERVICE_ACCOUNT=$(gcloud iam service-accounts list \
   --project="$PROJECT_ID")
 
 if [ -z "$SERVICE_ACCOUNT" ]; then
-  echo "❌ Could not find Compute Engine default service account."
-  echo "💡 Tip: Create a VM manually once to auto-generate it, or skip the --service-account flag in the script."
-  exit 1
+  echo "⚠️ No default Compute Engine service account found. Proceeding without --service-account flag."
+  USE_SA=false
+else
+  echo "✅ Using service account: $SERVICE_ACCOUNT"
+  USE_SA=true
 fi
-
-echo "✅ Using service account: $SERVICE_ACCOUNT"
 
 # ─────────────────────────────────────────────
 # STEP 5: Create Firewall Rule (safe skip if exists)
@@ -66,7 +66,7 @@ else
 fi
 
 # ─────────────────────────────────────────────
-# STEP 6: Create VM with Your Custom Config
+# STEP 6: Create VM with Custom Config
 # ─────────────────────────────────────────────
 echo "🚀 Creating VM 'modeltraining'..."
 
@@ -78,7 +78,7 @@ gcloud compute instances create modeltraining \
   --metadata=ssh-keys="$SSH_KEY" \
   --maintenance-policy=MIGRATE \
   --provisioning-model=STANDARD \
-  --service-account="$SERVICE_ACCOUNT" \
+  $( [ "$USE_SA" = true ] && echo "--service-account=$SERVICE_ACCOUNT" ) \
   --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/trace.append \
   --tags=https-server,http-server \
   --create-disk=auto-delete=yes,boot=yes,device-name=modeltraining,image=projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2410-oracular-amd64-v20250606,mode=rw,size=100,type=pd-balanced \
