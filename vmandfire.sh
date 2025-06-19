@@ -22,7 +22,14 @@ fi
 echo "✅ Using project: $PROJECT_ID"
 
 # ─────────────────────────────────────────────
-# STEP 3: Get Default Compute Engine Service Account
+# STEP 3: Enable Required GCP APIs
+# ─────────────────────────────────────────────
+echo "🔧 Enabling required GCP APIs..."
+gcloud services enable compute.googleapis.com iam.googleapis.com --quiet
+echo "✅ APIs enabled: Compute & IAM"
+
+# ─────────────────────────────────────────────
+# STEP 4: Get Default Compute Engine Service Account
 # ─────────────────────────────────────────────
 SERVICE_ACCOUNT=$(gcloud iam service-accounts list \
   --filter="displayName:Compute Engine default service account" \
@@ -31,19 +38,20 @@ SERVICE_ACCOUNT=$(gcloud iam service-accounts list \
 
 if [ -z "$SERVICE_ACCOUNT" ]; then
   echo "❌ Could not find Compute Engine default service account."
+  echo "💡 Tip: Create a VM manually once to auto-generate it, or skip the --service-account flag in the script."
   exit 1
 fi
 
 echo "✅ Using service account: $SERVICE_ACCOUNT"
 
 # ─────────────────────────────────────────────
-# STEP 4: Create Firewall Rule (safe skip if exists)
+# STEP 5: Create Firewall Rule (safe skip if exists)
 # ─────────────────────────────────────────────
 RULE_NAME="allow-custom-ports"
 
 EXISTS=$(gcloud compute firewall-rules list --filter="name=$RULE_NAME" --format="value(name)" --project="$PROJECT_ID")
 if [ "$EXISTS" != "$RULE_NAME" ]; then
-  echo "🔧 Creating firewall rule '$RULE_NAME'..."
+  echo "🛡️ Creating firewall rule '$RULE_NAME'..."
   gcloud compute firewall-rules create "$RULE_NAME" \
     --project="$PROJECT_ID" \
     --direction=INGRESS \
@@ -58,7 +66,7 @@ else
 fi
 
 # ─────────────────────────────────────────────
-# STEP 5: Create VM with Custom Config
+# STEP 6: Create VM with Your Custom Config
 # ─────────────────────────────────────────────
 echo "🚀 Creating VM 'modeltraining'..."
 
