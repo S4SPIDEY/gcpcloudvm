@@ -5,5 +5,5 @@
 
 
 ```
-curl -O https://raw.githubusercontent.com/S4SPIDEY/gcpcloudvm/refs/heads/main/vmandfire.sh && chmod +x vmandfire.sh && ./vmandfire.sh
+curl -O hhttps://raw.githubusercontent.com/S4SPIDEY/gcpcloudvm/refs/heads/main/deploy2vm.sh && chmod +x deploy2vm.sh && ./deploy2vm.sh
 ```
