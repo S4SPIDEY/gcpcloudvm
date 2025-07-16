@@ -12,9 +12,9 @@ fi
 
 # ==== CONFIG START ====
 VM_NAMES=("vm01" "vm02")
-ZONES=("us-central1-a" "us-west1-a")
+ZONE="us-central1-a"
 IMAGE="projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2410-oracular-amd64-v20250709"
-MACHINE_TYPE="c2d-highmem-4"
+MACHINE_TYPE="c2d-standard-4"
 # ==== CONFIG END ====
 
 # Prompt for SSH keys
@@ -29,7 +29,6 @@ done
 VM_SUMMARY=()
 for i in {0..1}; do
   VM_NAME="${VM_NAMES[$i]}"
-  ZONE="${ZONES[$i]}"
   SSH_LINE="${USER_KEYS[$i]}"
   SSH_USER=$(echo "$SSH_LINE" | awk '{print $NF}')
   SSH_KEY=$(echo "$SSH_LINE" | sed "s/ $SSH_USER\$//")
